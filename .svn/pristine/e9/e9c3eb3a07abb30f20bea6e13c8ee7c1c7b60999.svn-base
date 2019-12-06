@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- mapper是根据标签,namespace为对应的接口文件 -->
+<mapper namespace="com.dao.MyuserMapper" >
+<!-- 自定义结果集 ,id值为自定义,type对应实体bean-->
+  <resultMap id="BaseResultMap" type="com.bean.Myuser" >
+	<!--   id为主键,column为数据库字段名,property为bean的属性,jdbcType为数据库的类型 -->
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <!--   result描述其它字段,column为数据库字段名,property为bean的属性,jdbcType为数据库的类型 -->
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="userpass" property="userpass" jdbcType="VARCHAR" />
+    <!-- 可扩展其它数据 -->
+  </resultMap>
+  <!-- 查询列表 -->
+  <sql id="Base_Column_List" >
+    id, username, userpass
+  </sql>
+  <!-- 根据主键查询 ,id:接口中的方法名,resultMap:为返回的自定义集合类型,parameterType:int=java.lang.Integer-->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <!-- 引入的包含标签 -->
+    <include refid="Base_Column_List" />
+    from myuser
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <!-- 查询所有记录 -->
+   <select id="selectAllUser" resultType="com.bean.Myuser">
+   	select * from myuser
+   </select>
+   <!-- 查询所有记录 -->
+   <select id="selectAllUser2" resultMap="BaseResultMap">
+   	select
+   	<include refid="Base_Column_List"></include>
+   	from myuser
+   </select>
+   <!-- <select id="" resultType="com.bean.Myuser">
+   	select * from myuser where id=#{id}
+   </select> -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from myuser
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bean.Myuser" >
+    insert into myuser (id, username, userpass
+      )
+    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{userpass,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bean.Myuser" >
+    insert into myuser
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="username != null" >
+        username,
+      </if>
+      <if test="userpass != null" >
+        userpass,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="username != null" >
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="userpass != null" >
+        #{userpass,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+ <!--  修改非空数据,条件为id  update myuser set userpass=? where id=?-->
+  <update id="updateByPrimaryKeySelective" parameterType="com.bean.Myuser" >
+    update myuser
+    <set >
+      <if test="username != null" >
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="userpass != null" >
+        userpass = #{userpass,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <!-- 修改所有字段，条件为id -->
+  <update id="updateByPrimaryKey" parameterType="com.bean.Myuser" >
+    update myuser
+    set username = #{username,jdbcType=VARCHAR},
+      userpass = #{userpass,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <!-- 分页数据 -->
+  <select id="pageUser" resultMap="BaseResultMap">
+       <!-- select * from myuser limit (#{param1}-1)*#{param2},#{param2} -->
+       select * from myuser limit #{param1},#{param2}
+  </select>
+</mapper>

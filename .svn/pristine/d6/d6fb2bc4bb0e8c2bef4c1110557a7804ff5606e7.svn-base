@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dao.TeacherMapper" >
+  <resultMap id="BaseResultMap" type="com.bean.Teacher" >
+    <id column="tid" property="tid" jdbcType="INTEGER" />
+    <result column="sid" property="sid" jdbcType="INTEGER" />
+    <result column="tname" property="tname" jdbcType="VARCHAR" />
+    <result column="tpic" property="tpic" jdbcType="VARCHAR" />
+    <result column="tflag" property="tflag" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tid, sid, tname, tpic, tflag
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from teacher
+    where tid = #{tid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from teacher
+    where tid = #{tid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.bean.Teacher" >
+    insert into teacher (tid, sid, tname, 
+      tpic, tflag)
+    values (#{tid,jdbcType=INTEGER}, #{sid,jdbcType=INTEGER}, #{tname,jdbcType=VARCHAR}, 
+      #{tpic,jdbcType=VARCHAR}, #{tflag,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bean.Teacher" >
+    insert into teacher
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        tid,
+      </if>
+      <if test="sid != null" >
+        sid,
+      </if>
+      <if test="tname != null" >
+        tname,
+      </if>
+      <if test="tpic != null" >
+        tpic,
+      </if>
+      <if test="tflag != null" >
+        tflag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tid != null" >
+        #{tid,jdbcType=INTEGER},
+      </if>
+      <if test="sid != null" >
+        #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="tname != null" >
+        #{tname,jdbcType=VARCHAR},
+      </if>
+      <if test="tpic != null" >
+        #{tpic,jdbcType=VARCHAR},
+      </if>
+      <if test="tflag != null" >
+        #{tflag,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bean.Teacher" >
+    update teacher
+    <set >
+      <if test="sid != null" >
+        sid = #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="tname != null" >
+        tname = #{tname,jdbcType=VARCHAR},
+      </if>
+      <if test="tpic != null" >
+        tpic = #{tpic,jdbcType=VARCHAR},
+      </if>
+      <if test="tflag != null" >
+        tflag = #{tflag,jdbcType=INTEGER},
+      </if>
+    </set>
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bean.Teacher" >
+    update teacher
+    set sid = #{sid,jdbcType=INTEGER},
+      tname = #{tname,jdbcType=VARCHAR},
+      tpic = #{tpic,jdbcType=VARCHAR},
+      tflag = #{tflag,jdbcType=INTEGER}
+    where tid = #{tid,jdbcType=INTEGER}
+  </update>
+  <!-- 查找教师对应的学生信息 -->
+  <select id="teastu" resultMap="teastuinfo">
+  	select * from student s,teacher t where s.sid=t.sid
+  </select>
+ <!--  配置返回集合数据 -->
+   <resultMap type="com.bean.Teacher" id="teastuinfo">
+   		<id column="tid" property="tid"/>
+   		<result column="tname" property="tname"/>
+   		<result column="tpic" property="tpic"/>
+   		<result column="tflag" property="tflag"/>
+   		<!-- 配置新增属性 -->
+   		<collection property="stu" ofType="com.bean.Student">
+   			<id column="sid" property="sid"/>
+   			<result column="sname" property="sname"/>
+   			<result column="spic" property="spic"/>
+   			<result column="sflag" property="sflag"/>
+   		</collection>
+   </resultMap>
+</mapper>

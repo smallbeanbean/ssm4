@@ -1,0 +1,129 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8" isErrorPage="true"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+function findAll(){
+	//发送请求
+	/* $.post("user.action?all",function(data){
+		
+	}); */
+	$.ajax({
+		url:'user.action?all',
+		type:'post',
+		async:false,//异步
+		success:function(data){
+			var str='<table><tr><td>编号</td><td>用户名</td><td>密码</td><td>操作</td></tr>';
+			$.each(data,function(i){
+				str+='<tr><td>'+data[i]["id"]+'</td><td>'+data[i]["username"]+'</td><td>'+data[i]["userpass"]+'</td>'
+				+'<td><a href="javascript:delone('+data[i]["id"]+')">删除</a>'
+				+'<a href="javascript:findone('+data[i]["id"]+')">修改</a></td></tr>';
+			});
+			str+='</table>';
+			$("#con").html(str);
+		}
+	});
+}
+/**
+ * 修改前的查询
+ */
+ function findone(id){
+	//向控制层发出请求，得到一条数据,第一个id为控制层方法的形参,第二个id为当前方法的形参
+	$.post("user.action?oneuser",{id:id},function(data){
+		//将数据绑定到表单中
+		$("#id").val(data["id"]);
+		$("#username").val(data.username);
+		$("#userpass").val(data.userpass);
+		$("#update2").attr("style","display:block");
+	});
+	
+}
+function delone(id){
+	//确认删除
+	var flag=confirm("确定删除吗");
+	if(flag)
+	$.post("user.action?del",{id:id},function(data){
+		if(data==1)
+			{
+			alert("删除成功");
+			findAll();
+			
+			}
+	});
+}
+/**
+ * 表单修改
+ */
+ function update(){
+	//向控制层发出请求
+	$.post("user.action?oneupdate",$("#update2").serialize(),function(data){
+		if(data==1){
+			alert("修改成功");
+			findAll();
+			$("#update2").attr("style","display:none");
+		}
+	});
+}
+/**
+ * 用户数据插入
+ */
+ function userInsert(){
+	//验证通过再提交
+	$.post("user.action?insert",$("#insert").serialize(),function(data){
+		 if(data==1){
+			 alert("插入成功");
+			 findAll();
+		 }
+	});
+}
+//请求分页数据加载到div中
+function pageData(){
+	//得到当前页的值
+	var page=$("#pagedata").attr("data");
+	$.post("user.action?page2",{page:parseInt(page)},function(data){
+		var str='';
+		$.each(data["pagedata"],function(i){
+			str+='<tr><td>'+data["pagedata"][i]["id"]+'</td><td>'+data["pagedata"][i]["username"]+'</td><td>'+data["pagedata"][i]["userpass"]+'</td>'
+			+'<td><a href="javascript:delone('+data["pagedata"][i]["id"]+')">删除</a>'
+			+'<a href="javascript:findone('+data["pagedata"][i]["id"]+')">修改</a></td></tr>';
+		});
+		//追加到div中
+		$("#pagecon").append(str);
+		//修改加载按钮中data属性的值,考虑是否是最后一页
+		$("#pagedata").attr("data",parseInt(page)+1);
+		//总页数
+		$("#pagedata").attr("cntpage",data["pages"]);
+	});
+}
+</script>
+<a href="user/one">查询一条数据test</a>
+<a href="user.action?one&id=1">查询一条数据</a>
+<a href="javascript:findAll()">查询所有</a>
+<a href="stu.action?select">查询学生教师信息</a><br>
+<a href="tea.action?select">查询学生教师信息</a><br>
+<div id="con">
+</div>
+<form action="" method="post" style="display: none" id="update2">
+id:<input type="hidden" name="id" id="id"><br>
+用户名:<input type="text" name="username" id="username"><br>
+密码:<input type="password" name="userpass" id="userpass"><br>
+<input type="button" value="提交" onclick="update()">
+</form>
+<!-- 插入表单 -->
+<form action="" method="post"  id="insert">
+插入id:<input type="hidden" name="id" id="id2"><br>
+用户名:<input type="text" name="username" id="username2"><br>
+密码:<input type="password" name="userpass" id="userpass2"><br>
+<input type="button" value="提交" onclick="userInsert()">
+</form>
+<!-- 加载的数据 -->
+<div id="pagecon"></div>
+<input type="button" value="加载" data="1" cntpage="" onclick="pageData()" id="pagedata">
+</body>
+</html>

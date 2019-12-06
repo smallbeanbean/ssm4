@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+		<!-- beans —— xml文件的根节点。
+xmlns ——是XML NameSpace的缩写，因为XML文件的标签名称都是自定义的，
+自己写的和其他人定义的标签很有可能会重复命名，而功能却不一样，
+所以需要加上一个namespace来区分这个xml文件和其他的xml文件，类似于java中的package。
+
+xmlns:xsi ——是指xml文件遵守xml规范，xsi全名：xml schema instance，
+是指具体用到的schema资源文件里定义的元素所准守的规范。即/spring-beans-2.0.xsd这个文件里定义的元素遵守什么标准。
+
+xsi:schemaLocation——是指，本文档里的xml元素所遵守的规范，
+schemaLocation 属性用来引用(schema)模式文档，
+解析器可以在需要的情况下使用这个文档对 XML 实例文档进行校验。
+它的值(URI)是成对出现的，第一个值表示命名空间，第二个值则表示描述该命名空间的模式文档的具体位置，两个值之间以空格分隔。 -->
+<!-- 扫描包 -->
+<context:component-scan base-package="com"></context:component-scan>
+<!-- 读取属性文件 -->
+<bean id="propertyConfigure" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	<property name="location" value="classpath:jdbc.properties"></property>
+	
+</bean>
+<!-- 读取数据源 -->
+<bean id="datasource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+	<property name="driverClassName" value="${jdbc.driver}"></property>
+	<property name="url" value="${jdbc.url}"></property>
+	<property name="username" value="${jdbc.username}"></property>
+	<property name="password" value="${jdbc.password}"></property>
+</bean>
+<!-- ${key}这样的表达式在XML中，代表引入的properties文件中key对应的一个变量值，完全是靠第三方jar自己解析的 -->
+<!-- spring和mybatis的整合 -->
+<bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactoryBean">
+	<property name="dataSource" ref="datasource"></property>
+	<property name="mapperLocations" value="classpath:com/mapping/*.xml"></property>
+</bean>
+<!-- 接口层扫描 -->
+<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"></property>
+	<property name="basePackage" value="com.dao"></property>
+</bean>
+<!-- 事务管理 -->
+<bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="dataSourceTransactionManager">
+	<property name="dataSource" ref="datasource"></property>
+</bean>
+
+</beans>
